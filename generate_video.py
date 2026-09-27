@@ -1,75 +1,258 @@
+import os
 import json
+import base64
 import subprocess
+import urllib.request
+import urllib.error
+
+# ============================================================
+# IT Doctor AI - Day 1 Short with Gemini TTS
+# ============================================================
+
+# ------------------------------------------------------------
+# 1. Load video data
+# ------------------------------------------------------------
 
 with open("video_data.json", "r", encoding="utf-8") as f:
     data = json.load(f)
 
+voiceover = data["voiceover"]
 scenes = data["scenes"]
 
-# Create scene text files
-for i, scene in enumerate(scenes):
-    with open(f"scene_{i}.txt", "w", encoding="utf-8") as f:
-        f.write(scene["text"])
+api_key = os.environ.get("GEMINI_API_KEY")
 
-# Build a simple professional vertical Short
-inputs = []
-filters = []
+if not api_key:
+    raise RuntimeError("GEMINI_API_KEY secret was not found.")
 
-for i, scene in enumerate(scenes):
-    duration = 6.7 if i < 5 else 6.5
 
-    inputs.extend([
-        "-f", "lavfi",
-        "-i",
-        f"color=c=0x071A2B:s=1080x1920:d={duration}"
-    ])
+# ------------------------------------------------------------
+# 2. Generate AI Voice with Gemini TTS
+# ------------------------------------------------------------
 
-    safe_text = (
-        scene["text"]
-        .replace("\\", "\\\\")
-        .replace("'", "\\'")
-        .replace(":", "\\:")
-    )
+print("Generating AI voice...")
 
-    filters.append(
-        f"[{i}:v]"
-        f"drawtext="
-        f"fontcolor=white:"
-        f"fontsize=58:"
-        f"x=(w-text_w)/2:"
-        f"y=(h-text_h)/2:"
-        f"text='{safe_text}'"
-        f"[v{i}]"
-    )
+url = "https://generativelanguage.googleapis.com/v1beta/interactions"
 
-concat_inputs = "".join(f"[v{i}]" for i in range(len(scenes)))
+payload = {
+    "model": "gemini-2.5-flash-preview-tts",
+    "input": [
+        {
+            "type": "user_input",
+            "content": [
+                {
+                    "type": "text",
+                    "text": voiceover,
+                    "annotations": [
+                        {
+                            "type": "speech_metadata",
+                            "style": (
+                                "Friendly, confident and energetic "
+                                "technology presenter. "
+                                "Speak clearly at a natural pace."
+                            )
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "response_format": {
+        "type": "audio"
+    },
+    "generation_config": {
+        "speech_config": [
+            {
+                "voice": "Kore"
+            }
+        ]
+    }
+}
 
-filter_complex = (
-    ";".join(filters)
-    + ";"
-    + concat_inputs
-    + f"concat=n={len(scenes)}:v=1:a=0[outv]"
+request = urllib.request.Request(
+    url,
+    data=json.dumps(payload).encode("utf-8"),
+    headers={
+        "Content-Type": "application/json",
+        "x-goog-api-key": api_key
+    },
+    method="POST"
 )
 
-command = [
-    "ffmpeg",
-    "-y",
-    *inputs,
-    "-filter_complex",
-    filter_complex,
-    "-map",
-    "[outv]",
-    "-c:v",
-    "libx264",
-    "-preset",
-    "veryfast",
-    "-pix_fmt",
-    "yuv420p",
-    "-movflags",
-    "+faststart",
-    "it_doctor_ai_day1.mp4"
-]
+try:
+    with urllib.request.urlopen(request) as response:
+        result = json.loads(
+            response.read().decode("utf-8")
+        )
 
-subprocess.run(command, check=True)
+except urllib.error.HTTPError as e:
+    error_body = e.read().decode("utf-8", errors="replace")
+    print("Gemini API Error:")
+    print(error_body)
+    raise
 
-print("IT Doctor AI Day 1 Short created successfully!")
+
+# ------------------------------------------------------------
+# 3. Extract generated audio
+# ------------------------------------------------------------
+
+if "output_audio" not in result:
+    print("Gemini response:")
+    print(json.dumps(result, indent=2))
+    raise RuntimeError("No audio was returned by Gemini.")
+
+audio_data = result["output_audio"]["data"]
+
+if not audio_data:
+    raise RuntimeError("Gemini returned empty audio data.")
+
+with open("voice.wav", "wb") as f:
+    f.write(base64.b64decode(audio_data))
+
+print("AI voice generated successfully!")
+
+
+# ------------------------------------------------------------
+# 4. Create scene videos
+# ------------------------------------------------------------
+
+print("Creating video scenes...")
+
+scene_files = []
+
+for i, scene in enumerate(scenes):
+
+    scene_file = f"scene_{i}.mp4"
+    scene_files.append(scene_file)
+
+    duration = 6.7 if i < len(scenes) - 1 else 6.5
+
+    text = scene["text"]
+
+    # Escape characters for FFmpeg
+    text = (
+        text.replace("\\", "\\\\")
+            .replace("'", "\\'")
+            .replace(":", "\\:")
+            .replace(",", "\\,")
+    )
+
+    command = [
+        "ffmpeg",
+        "-y",
+        "-f",
+        "lavfi",
+        "-i",
+        f"color=c=0x071A2B:s=1080x1920:d={duration}",
+        "-vf",
+        (
+            "drawtext="
+            "fontcolor=white:"
+            "fontsize=58:"
+            "font=DejaVuSans-Bold:"
+            "x=(w-text_w)/2:"
+            "y=(h-text_h)/2:"
+            f"text='{text}'"
+        ),
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-pix_fmt",
+        "yuv420p",
+        "-an",
+        scene_file
+    ]
+
+    subprocess.run(command, check=True)
+
+    print(f"Scene {i + 1} created.")
+
+
+# ------------------------------------------------------------
+# 5. Create concat list
+# ------------------------------------------------------------
+
+with open("concat.txt", "w", encoding="utf-8") as f:
+
+    for scene_file in scene_files:
+        absolute_path = os.path.abspath(scene_file)
+
+        # FFmpeg concat format
+        f.write(
+            "file '"
+            + absolute_path.replace("'", "'\\''")
+            + "'\n"
+        )
+
+
+# ------------------------------------------------------------
+# 6. Join all scenes
+# ------------------------------------------------------------
+
+print("Joining scenes...")
+
+subprocess.run(
+    [
+        "ffmpeg",
+        "-y",
+        "-f",
+        "concat",
+        "-safe",
+        "0",
+        "-i",
+        "concat.txt",
+        "-c",
+        "copy",
+        "video_without_voice.mp4"
+    ],
+    check=True
+)
+
+
+# ------------------------------------------------------------
+# 7. Add AI voice
+# ------------------------------------------------------------
+
+print("Adding AI voice to video...")
+
+subprocess.run(
+    [
+        "ffmpeg",
+        "-y",
+        "-i",
+        "video_without_voice.mp4",
+        "-i",
+        "voice.wav",
+        "-map",
+        "0:v:0",
+        "-map",
+        "1:a:0",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "192k",
+        "-shortest",
+        "-movflags",
+        "+faststart",
+        "it_doctor_ai_day1.mp4"
+    ],
+    check=True
+)
+
+
+# ------------------------------------------------------------
+# 8. Get video information
+# ------------------------------------------------------------
+
+print("")
+print("======================================")
+print(" IT DOCTOR AI VIDEO CREATED!")
+print("======================================")
+print("")
+print("File:")
+print("it_doctor_ai_day1.mp4")
+print("")
+print("Video + AI Voice: SUCCESS")
+print("======================================")
