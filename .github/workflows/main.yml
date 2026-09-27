@@ -1,0 +1,27 @@
+name: IT Doctor AI Video Generator
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-video:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Generate Video
+        run: |
+          python generate_video.py
+
+      - name: Save Video
+        uses: actions/upload-artifact@v4
+        with:
+          name: it-doctor-ai-day1-video
+          path: it_doctor_ai_day1.mp4
