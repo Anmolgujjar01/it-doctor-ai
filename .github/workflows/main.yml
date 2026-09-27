@@ -15,13 +15,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
-          
-          - name: Generate Video
-    env:
+
+      - name: Generate Video
+        env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-    run: |
-        python generate_video.py
-        
+        run: |
+          python generate_video.py
+
       - name: Save Video
         uses: actions/upload-artifact@v4
         with:
