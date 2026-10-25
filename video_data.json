@@ -1,47 +1,58 @@
+
 {
   "channel": "IT Doctor AI",
   "video_number": 1,
   "type": "AI Doctor",
-  "title": "ChatGPT Ko Ye Prompt Do 🤯 | Better AI Answers in Seconds #Shorts",
+  "title": "ChatGPT Ko Ye Prompt Do | Better AI Answers #Shorts",
   "duration": 40,
   "publish_time": "12:30",
   "language": "Roman Urdu",
+  "voice_language": "Urdu",
+  "screen_language": "English",
   "thumbnail_text": "BETTER PROMPT!",
   "hook": "ChatGPT ko sirf sawal mat poochiye... isay ye prompt dein!",
-  "voiceover": "ChatGPT ko sirf sawal mat poochiye... isay ye prompt dein! Zyada tar log AI ko sirf ek simple question dete hain, is liye unhein average answer milta hai. Better result ke liye ChatGPT ko 4 cheezein batayein: Role, Goal, Context aur Format. Example: You are a professional marketing expert. Mera goal hai YouTube channel grow karna. Mujhe 5 practical ideas table ki form mein do. Ab dekhein... AI ko clear instructions milin, aur answer bhi zyada specific ho gaya. Better prompt, better result. IT Doctor AI ko follow karein for daily AI and IT tips.",
+  "voiceover": "ChatGPT ko sirf sawal mat poochiye, isay ye prompt dein! Zyada tar log AI ko sirf ek simple question dete hain, is liye unhein average answer milta hai. Better result ke liye ChatGPT ko chaar cheezein batayein: Role, Goal, Context aur Format. Example: You are a professional marketing expert. Mera goal hai YouTube channel grow karna. Mujhe five practical ideas table ki form mein do. Ab dekhein, AI ko clear instructions milin aur answer bhi zyada specific ho gaya. Better prompt, better result. IT Doctor AI ko follow karein for daily AI and IT tips.",
+  "subtitles": [
+    "GIVE CHATGPT THIS PROMPT!",
+    "GIVE ME YOUTUBE IDEAS",
+    "ROLE + GOAL + CONTEXT + FORMAT",
+    "YOU ARE A PROFESSIONAL MARKETING EXPERT",
+    "BEFORE vs AFTER",
+    "BETTER PROMPT = BETTER RESULT"
+  ],
   "scenes": [
     {
       "time": "0-3",
-      "text": "CHATGPT KO YE PROMPT DO! 🤯",
-      "visual": "AI chat interface"
+      "text": "GIVE CHATGPT THIS PROMPT!",
+      "visual": "Dark futuristic AI chat interface with glowing blue circuits"
     },
     {
       "time": "3-8",
-      "text": "❌ Give me YouTube ideas",
-      "visual": "Generic prompt with red cross"
+      "text": "GIVE ME YOUTUBE IDEAS",
+      "visual": "Generic AI prompt with a red cross and simple chat interface"
     },
     {
       "time": "8-15",
-      "text": "BETTER PROMPT: ROLE + GOAL + CONTEXT + FORMAT",
-      "visual": "Four highlighted prompt components"
+      "text": "ROLE + GOAL + CONTEXT + FORMAT",
+      "visual": "Four glowing panels highlighting each prompt component"
     },
     {
       "time": "15-27",
-      "text": "You are a professional marketing expert. My goal is to grow my YouTube channel. Give me 5 practical ideas in table format.",
-      "visual": "Prompt being typed into AI chat"
+      "text": "YOU ARE A PROFESSIONAL MARKETING EXPERT",
+      "visual": "Professional AI chat interface displaying the example prompt"
     },
     {
       "time": "27-34",
-      "text": "BEFORE → AFTER",
-      "visual": "Generic answer versus specific answer"
+      "text": "BEFORE vs AFTER",
+      "visual": "Split screen comparing a generic answer with a specific answer"
     },
     {
       "time": "34-40",
       "text": "BETTER PROMPT = BETTER RESULT",
-      "visual": "IT Doctor AI logo and follow CTA"
+      "visual": "Futuristic blue technology background with IT Doctor AI branding and follow call to action"
     }
   ],
-  "description": "ChatGPT se better results chahiye? Role + Goal + Context + Format ka simple formula try karein. Daily AI aur IT tips ke liye IT Doctor AI ko follow karein.",
+  "description": "Learn how to get better answers from ChatGPT using Role, Goal, Context and Format. Follow IT Doctor AI for daily AI and IT tips.",
   "hashtags": [
     "AI",
     "ChatGPT",
@@ -50,4 +61,3 @@
     "Shorts"
   ]
 }
-
