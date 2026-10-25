@@ -1,29 +1,49 @@
-name: IT Doctor AI Video Generator
+
+name: Generate IT Doctor AI Video
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "video_data.json"
+      - "video_generator.py"
+      - "requirements.txt"
+      - ".github/workflows/generate-video.yml"
+
+permissions:
+  contents: read
 
 jobs:
-  generate-video:
+  generate:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install FFmpeg
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg fonts-noto-core fonts-noto-extra
 
-      - name: Generate Video
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python packages
         run: |
-          python generate_video.py
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Save Video
+      - name: Generate video
+        run: python video_generator.py
+
+      - name: Upload finished MP4
         uses: actions/upload-artifact@v4
         with:
-          name: it-doctor-ai-day1-video
-          path: it_doctor_ai_day1.mp4
+          name: it-doctor-ai-video
+          path: output/it_doctor_ai_day1.mp4
+          if-no-files-found: error
+          retention-days: 7
